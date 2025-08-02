@@ -1,0 +1,51 @@
+[
+  {
+    "_id": "1754115320784",
+    "name": "pavi",
+    "email": "pavi@gmail.com",
+    "message": "campus is good",
+    "purpose": "Event Attendance",
+    "createdAt": "2025-08-02T06:15:20.784Z",
+    "updatedAt": "2025-08-02T06:15:20.784Z"
+  },
+  {
+    "_id": "1754117344147",
+    "name": "anu",
+    "email": "anu@gmail.com",
+    "message": "nice",
+    "purpose": "Campus Tour",
+    "category": "Cultural",
+    "createdAt": "2025-08-02T06:49:04.148Z",
+    "updatedAt": "2025-08-02T06:49:04.151Z"
+  },
+  {
+    "_id": "1754117401812",
+    "name": "nandhu",
+    "email": "nandhu@gmail.com",
+    "message": "good environment",
+    "purpose": "Alumni Visit",
+    "category": "Academic",
+    "createdAt": "2025-08-02T06:50:01.812Z",
+    "updatedAt": "2025-08-02T06:50:01.813Z"
+  },
+  {
+    "_id": "1754117463541",
+    "name": "hema",
+    "email": "hema@gmail.com",
+    "message": "infrastructure is good",
+    "purpose": "Seminar/Workshop",
+    "category": "Professional",
+    "createdAt": "2025-08-02T06:51:03.543Z",
+    "updatedAt": "2025-08-02T06:51:03.547Z"
+  },
+  {
+    "_id": "1754117545508",
+    "name": "aishu",
+    "email": "aishu@gmail.com",
+    "message": "bring back the memories",
+    "purpose": "Alumni Visit",
+    "category": "Professional",
+    "createdAt": "2025-08-02T06:52:25.508Z",
+    "updatedAt": "2025-08-02T06:52:25.508Z"
+  }
+]

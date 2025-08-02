@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1754114953914",
+    "name": "anu",
+    "email": "av@gmail.com",
+    "password": "$2a$10$M1xZyNVZauK5z17OQXmtguTAwmo1kOYMdMEiKeIG5uEH2EdPEHN7i",
+    "createdAt": "2025-08-02T06:09:13.914Z"
+  },
+  {
+    "id": "1754115296807",
+    "name": "pavi",
+    "email": "pavi@gmail.com",
+    "password": "$2a$10$VcFwV5PHTucA8W92ftb7iO4L/bM.y2gkLKN5oAFtPTFV.blQq5.nW",
+    "createdAt": "2025-08-02T06:14:56.807Z"
+  }
+]
