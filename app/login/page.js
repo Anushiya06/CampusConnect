@@ -105,7 +105,7 @@ export default function LoginPage() {
           </button>
         </form>
         <div className="link">
-          <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+          <p>Don&apos;t have an account? <a href="/signup">Sign Up</a></p>
         </div>
       </div>
     </div>

@@ -14,35 +14,11 @@
     "createdAt": "2025-08-02T06:14:56.807Z"
   },
   {
-    "id": "1754122484181",
-    "name": "sheela",
-    "email": "sheela@gmail.com",
-    "password": "$2a$10$.t9f/wItuyuWtZ0fpP7xL.tqT0db1AUsH.CLVayV6zvXhQ0K.WfwO",
+    "id": "1754230819283",
+    "name": "sri",
+    "email": "sri@gmail.com",
+    "password": "$2a$10$8THZ52kF1RPe5AiNlIjw1Onl33pgkoDYsEB6Sq2.MbhNktRFHoVwS",
     "role": "user",
-    "createdAt": "2025-08-02T08:14:44.181Z"
-  },
-  {
-    "id": "1754123401207",
-    "name": "arul",
-    "email": "arul@gmail.com",
-    "password": "$2a$10$UPYXtHM3zkZHJDklCRFWFuaqfi1vVMh2ie8E8rLZM2x5QmPIayiAa",
-    "role": "admin",
-    "createdAt": "2025-08-02T08:30:01.208Z"
-  },
-  {
-    "id": "1754123690834",
-    "name": "anu",
-    "email": "anu@gmail.com",
-    "password": "$2a$10$WloTezmJEoP74XKJ4.NEL.9pN0YiDAHMAcmgksdjuJg6L/Fx4ArdG",
-    "role": "user",
-    "createdAt": "2025-08-02T08:34:50.834Z"
-  },
-  {
-    "id": "1754220838393",
-    "name": "antoanu",
-    "email": "anto@gmail.com",
-    "password": "$2a$10$ZC4jDB5VWcNpKMCXjdSVeujMIx7rSQPiomaVHsjhSxHbX2VrH7soi",
-    "role": "user",
-    "createdAt": "2025-08-03T11:33:58.393Z"
+    "createdAt": "2025-08-03T14:20:19.284Z"
   }
 ]

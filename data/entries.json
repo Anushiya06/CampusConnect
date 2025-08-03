@@ -47,5 +47,15 @@
     "category": "Professional",
     "createdAt": "2025-08-02T06:52:25.508Z",
     "updatedAt": "2025-08-02T06:52:25.508Z"
+  },
+  {
+    "id": "1754229818265",
+    "name": "abi",
+    "email": "abi@gmail.com",
+    "message": "good",
+    "purpose": "Alumni Visit",
+    "category": "Social",
+    "createdAt": "2025-08-03T14:03:38.265Z",
+    "updatedAt": "2025-08-03T14:03:38.299Z"
   }
 ]

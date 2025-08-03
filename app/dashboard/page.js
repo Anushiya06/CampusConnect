@@ -124,7 +124,7 @@ export default function DashboardPage() {
       return;
     }
 
-    if (confirm('Are you sure you want to delete this entry? This action cannot be undone.')) {
+    if (confirm(`Are you sure you want to delete this entry? This action cannot be undone.`)) {
       try {
         const response = await fetch(`/api/entry/delete/${entryId}`, {
           method: 'DELETE',
