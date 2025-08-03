@@ -52,7 +52,7 @@ export default function Home() {
             <h2>About Our Digital Guestbook</h2>
             <p>
               Campus Connect is our digital platform for sharing experiences, memories, and messages 
-              within our college community. Whether you're a student, faculty member, or visitor, 
+              within our college community. Whether you&apos;re a student, faculty member, or visitor, 
               this is your space to connect and contribute to our campus story.
             </p>
             
@@ -113,7 +113,7 @@ export default function Home() {
             <div className="card">
               <h3>Real-time Updates</h3>
               <p>
-                See new messages as they're posted. Stay connected with your campus community.
+                See new messages as they&apos;re posted. Stay connected with your campus community.
               </p>
             </div>
 
