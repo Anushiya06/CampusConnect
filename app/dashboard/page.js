@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import '../../styles/dashboard.css';
 
 export default function DashboardPage() {
@@ -18,15 +18,42 @@ export default function DashboardPage() {
   const [filteredEntries, setFilteredEntries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuthAndFetchData();
-  }, []);
+  const filterEntries = useCallback(() => {
+    let filtered = entries;
 
-  useEffect(() => {
-    filterEntries();
+    if (searchTerm) {
+      filtered = filtered.filter(entry =>
+        entry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.message.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (filterPurpose) {
+      filtered = filtered.filter(entry => entry.purpose === filterPurpose);
+    }
+
+    if (filterCategory) {
+      filtered = filtered.filter(entry => entry.category === filterCategory);
+    }
+
+    setFilteredEntries(filtered);
   }, [entries, searchTerm, filterPurpose, filterCategory]);
 
-  const checkAuthAndFetchData = async () => {
+  const fetchEntries = async () => {
+    try {
+      const response = await fetch('/api/entry/getAll');
+      const data = await response.json();
+      if (response.ok) {
+        setEntries(data.entries);
+        calculateStats(data.entries);
+      }
+    } catch (error) {
+      console.error('Error fetching entries:', error);
+    }
+  };
+
+  const checkAuthAndFetchData = useCallback(async () => {
     const cookies = document.cookie.split(';');
     const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
     const roleCookie = cookies.find(cookie => cookie.trim().startsWith('role='));
@@ -46,7 +73,6 @@ export default function DashboardPage() {
     if (nameCookie && userIdCookie) {
       const name = decodeURIComponent(nameCookie.split('=')[1]);
       const userId = userIdCookie.split('=')[1];
-      
       setUser({
         id: userId,
         name: name,
@@ -56,55 +82,25 @@ export default function DashboardPage() {
 
     await fetchEntries();
     setIsLoading(false);
-  };
+  }, []);
 
-  const fetchEntries = async () => {
-    try {
-      const response = await fetch('/api/entry/getAll');
-      const data = await response.json();
-      if (response.ok) {
-        setEntries(data.entries);
-        calculateStats(data.entries);
-      }
-    } catch (error) {
-      console.error('Error fetching entries:', error);
-    }
-  };
+  useEffect(() => {
+    checkAuthAndFetchData();
+  }, [checkAuthAndFetchData]);
 
-  const filterEntries = () => {
-    let filtered = entries;
-
-    // Search by name, email, or message
-    if (searchTerm) {
-      filtered = filtered.filter(entry =>
-        entry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entry.message.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Filter by purpose
-    if (filterPurpose) {
-      filtered = filtered.filter(entry => entry.purpose === filterPurpose);
-    }
-
-    // Filter by category
-    if (filterCategory) {
-      filtered = filtered.filter(entry => entry.category === filterCategory);
-    }
-
-    setFilteredEntries(filtered);
-  };
+  useEffect(() => {
+    filterEntries();
+  }, [filterEntries]);
 
   const calculateStats = (entries) => {
     const today = new Date().toDateString();
-    const todayEntries = entries.filter(entry => 
+    const todayEntries = entries.filter(entry =>
       new Date(entry.createdAt).toDateString() === today
     );
 
     const purposes = {};
     const categories = {};
-    
+
     entries.forEach(entry => {
       if (entry.purpose) {
         purposes[entry.purpose] = (purposes[entry.purpose] || 0) + 1;
@@ -127,13 +123,13 @@ export default function DashboardPage() {
       alert('Only administrators can delete entries.');
       return;
     }
-    
+
     if (confirm('Are you sure you want to delete this entry? This action cannot be undone.')) {
       try {
         const response = await fetch(`/api/entry/delete/${entryId}`, {
           method: 'DELETE',
         });
-        
+
         if (response.ok) {
           await fetchEntries();
           alert('Entry deleted successfully!');
@@ -215,7 +211,7 @@ export default function DashboardPage() {
             <p>User ID: {user.id}</p>
           </div>
         </div>
-        
+
         <div className="profile-details">
           <div className="detail-item">
             <label>Account Type</label>
@@ -242,7 +238,7 @@ export default function DashboardPage() {
           <div className="stat-label">All time entries</div>
         </div>
         <div className="stat-card">
-          <h3>Today's Entries</h3>
+          <h3>Today&apos;s Entries</h3>
           <div className="stat-number">{stats.today}</div>
           <div className="stat-label">New entries today</div>
         </div>
@@ -264,8 +260,6 @@ export default function DashboardPage() {
       {userRole === 'admin' && (
         <div className="admin-section">
           <h2>Administrator Controls</h2>
-          
-          {/* Search and Filter */}
           <div className="search-filters">
             <input
               type="text"
@@ -352,7 +346,7 @@ export default function DashboardPage() {
                     {new Date(entry.createdAt).toLocaleDateString()}
                   </div>
                 </div>
-                
+
                 <div className="entry-tags">
                   {entry.purpose && (
                     <span className="entry-purpose">{entry.purpose}</span>
@@ -361,13 +355,12 @@ export default function DashboardPage() {
                     <span className="entry-category">{entry.category}</span>
                   )}
                 </div>
-                
+
                 <div className="entry-message">{entry.message}</div>
-                
-                {/* Admin Delete Button */}
+
                 {userRole === 'admin' && (
                   <div className="entry-actions">
-                    <button 
+                    <button
                       onClick={() => handleDeleteEntry(entry._id)}
                       className="btn btn-danger"
                     >
