@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { verifyToken } from './lib/auth';
 
 export function middleware(request) {
   const { pathname } = request.nextUrl;
@@ -13,8 +12,15 @@ export function middleware(request) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded) {
+    // Inline token verification (basic decoding)
+    try {
+      const decoded = Buffer.from(token, 'base64').toString('utf-8');
+      const [userId, timestamp] = decoded.split(':');
+
+      if (!userId || !timestamp) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+    } catch {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

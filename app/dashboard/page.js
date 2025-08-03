@@ -9,30 +9,53 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({
     total: 0,
     today: 0,
-    purposes: {}
+    purposes: {},
+    categories: {}
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPurpose, setFilterPurpose] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filteredEntries, setFilteredEntries] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchEntries();
-    fetchUserProfile();
-    checkUserRole();
+    checkAuthAndFetchData();
   }, []);
 
   useEffect(() => {
     filterEntries();
   }, [entries, searchTerm, filterPurpose, filterCategory]);
 
-  const checkUserRole = () => {
+  const checkAuthAndFetchData = async () => {
     const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
     const roleCookie = cookies.find(cookie => cookie.trim().startsWith('role='));
+    const nameCookie = cookies.find(cookie => cookie.trim().startsWith('userName='));
+    const userIdCookie = cookies.find(cookie => cookie.trim().startsWith('userId='));
+
+    if (!tokenCookie) {
+      window.location.href = '/login';
+      return;
+    }
+
     if (roleCookie) {
       const role = roleCookie.split('=')[1];
       setUserRole(role);
     }
+
+    if (nameCookie && userIdCookie) {
+      const name = decodeURIComponent(nameCookie.split('=')[1]);
+      const userId = userIdCookie.split('=')[1];
+      
+      setUser({
+        id: userId,
+        name: name,
+        role: roleCookie ? roleCookie.split('=')[1] : 'user'
+      });
+    }
+
+    await fetchEntries();
+    setIsLoading(false);
   };
 
   const fetchEntries = async () => {
@@ -41,32 +64,21 @@ export default function DashboardPage() {
       const data = await response.json();
       if (response.ok) {
         setEntries(data.entries);
+        calculateStats(data.entries);
       }
     } catch (error) {
       console.error('Error fetching entries:', error);
     }
   };
 
-  const fetchUserProfile = async () => {
-    // For now, we'll create a mock user profile
-    // In a real app, you'd fetch this from an API
-    setUser({
-      id: '1',
-      name: 'John Doe',
-      email: 'john@example.com',
-      joinDate: '2024-01-15',
-      lastLogin: new Date().toLocaleDateString(),
-      totalEntries: 12
-    });
-  };
-
   const filterEntries = () => {
     let filtered = entries;
 
-    // Search by name or message
+    // Search by name, email, or message
     if (searchTerm) {
       filtered = filtered.filter(entry =>
         entry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         entry.message.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -91,37 +103,98 @@ export default function DashboardPage() {
     );
 
     const purposes = {};
+    const categories = {};
+    
     entries.forEach(entry => {
-      purposes[entry.purpose] = (purposes[entry.purpose] || 0) + 1;
+      if (entry.purpose) {
+        purposes[entry.purpose] = (purposes[entry.purpose] || 0) + 1;
+      }
+      if (entry.category) {
+        categories[entry.category] = (categories[entry.category] || 0) + 1;
+      }
     });
 
     setStats({
       total: entries.length,
       today: todayEntries.length,
-      purposes
+      purposes,
+      categories
     });
   };
 
   const handleDeleteEntry = async (entryId) => {
-    if (userRole !== 'admin') return;
+    if (userRole !== 'admin') {
+      alert('Only administrators can delete entries.');
+      return;
+    }
     
-    if (confirm('Are you sure you want to delete this entry?')) {
+    if (confirm('Are you sure you want to delete this entry? This action cannot be undone.')) {
       try {
         const response = await fetch(`/api/entry/delete/${entryId}`, {
           method: 'DELETE',
         });
         
         if (response.ok) {
-          fetchEntries();
+          await fetchEntries();
+          alert('Entry deleted successfully!');
+        } else {
+          alert('Failed to delete entry. Please try again.');
         }
       } catch (error) {
         console.error('Error deleting entry:', error);
+        alert('Error deleting entry. Please try again.');
       }
     }
   };
 
+  const handleExportData = () => {
+    if (userRole !== 'admin') {
+      alert('Only administrators can export data.');
+      return;
+    }
+
+    const csvContent = [
+      ['Name', 'Email', 'Purpose', 'Category', 'Message', 'Created At'],
+      ...filteredEntries.map(entry => [
+        entry.name,
+        entry.email,
+        entry.purpose || '',
+        entry.category || '',
+        entry.message,
+        new Date(entry.createdAt).toLocaleString()
+      ])
+    ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `campus-connect-entries-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="dashboard">
+        <div className="loading">
+          <h2>Loading Dashboard...</h2>
+          <p>Please wait while we fetch your data.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
-    return <div className="dashboard">Loading...</div>;
+    return (
+      <div className="dashboard">
+        <div className="error">
+          <h2>Access Denied</h2>
+          <p>Please log in to access the dashboard.</p>
+          <a href="/login" className="btn btn-primary">Go to Login</a>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -139,26 +212,24 @@ export default function DashboardPage() {
           </div>
           <div className="profile-info">
             <h2>{user.name}</h2>
-            <p>{user.email}</p>
+            <p>User ID: {user.id}</p>
           </div>
         </div>
         
         <div className="profile-details">
           <div className="detail-item">
-            <label>Member Since</label>
-            <span>{new Date(user.joinDate).toLocaleDateString()}</span>
-          </div>
-          <div className="detail-item">
-            <label>Last Login</label>
-            <span>{user.lastLogin}</span>
-          </div>
-          <div className="detail-item">
             <label>Account Type</label>
-            <span>{userRole === 'admin' ? 'Administrator' : 'User'}</span>
+            <span className={userRole === 'admin' ? 'admin-badge' : 'user-badge'}>
+              {userRole === 'admin' ? 'Administrator' : 'User'}
+            </span>
           </div>
           <div className="detail-item">
             <label>Account Status</label>
-            <span>Active</span>
+            <span className="status-active">Active</span>
+          </div>
+          <div className="detail-item">
+            <label>Last Login</label>
+            <span>{new Date().toLocaleDateString()}</span>
           </div>
         </div>
       </div>
@@ -176,22 +247,29 @@ export default function DashboardPage() {
           <div className="stat-label">New entries today</div>
         </div>
         <div className="stat-card">
-          <h3>Your Entries</h3>
-          <div className="stat-number">{user.totalEntries}</div>
-          <div className="stat-label">Your contributions</div>
+          <h3>Unique Purposes</h3>
+          <div className="stat-number">{Object.keys(stats.purposes).length}</div>
+          <div className="stat-label">Different purposes</div>
         </div>
+        {userRole === 'admin' && (
+          <div className="stat-card admin-card">
+            <h3>Admin Controls</h3>
+            <div className="stat-number">Active</div>
+            <div className="stat-label">Full access enabled</div>
+          </div>
+        )}
       </div>
 
       {/* Admin Features */}
       {userRole === 'admin' && (
         <div className="admin-section">
-          <h2>Admin Controls</h2>
+          <h2>Administrator Controls</h2>
           
           {/* Search and Filter */}
           <div className="search-filters">
             <input
               type="text"
-              placeholder="Search entries..."
+              placeholder="Search entries by name, email, or message..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -229,6 +307,9 @@ export default function DashboardPage() {
               <option value="Community Service">Community Service</option>
               <option value="Other">Other</option>
             </select>
+            <button onClick={handleExportData} className="btn btn-export">
+              Export Data
+            </button>
           </div>
         </div>
       )}
@@ -237,12 +318,14 @@ export default function DashboardPage() {
       <div className="entries-section">
         <h2>Purpose Breakdown</h2>
         {Object.entries(stats.purposes).length > 0 ? (
-          Object.entries(stats.purposes).map(([purpose, count]) => (
-            <div key={purpose} style={{ display: 'flex', justifyContent: 'space-between', margin: '10px 0', padding: '10px', background: '#f8f9fa', borderRadius: '6px' }}>
-              <span>{purpose}</span>
-              <span style={{ fontWeight: 'bold', color: '#007bff' }}>{count}</span>
-            </div>
-          ))
+          <div className="purpose-grid">
+            {Object.entries(stats.purposes).map(([purpose, count]) => (
+              <div key={purpose} className="purpose-item">
+                <span className="purpose-name">{purpose}</span>
+                <span className="purpose-count">{count}</span>
+              </div>
+            ))}
+          </div>
         ) : (
           <p>No entries found.</p>
         )}
@@ -254,7 +337,7 @@ export default function DashboardPage() {
         {filteredEntries.length === 0 ? (
           <div className="empty-state">
             <h3>No entries found</h3>
-            <p>Start by adding your first guestbook entry!</p>
+            <p>Try adjusting your search or filters.</p>
           </div>
         ) : (
           <div className="entries-grid">
@@ -288,7 +371,7 @@ export default function DashboardPage() {
                       onClick={() => handleDeleteEntry(entry._id)}
                       className="btn btn-danger"
                     >
-                      Delete
+                      Delete Entry
                     </button>
                   </div>
                 )}

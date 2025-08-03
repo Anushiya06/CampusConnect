@@ -5,12 +5,14 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
+  min-height: 70px;
 }
 
 .nav-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 clamp(20px, 4vw, 40px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -23,7 +25,7 @@
 }
 
 .nav-logo {
-  font-size: 1.5rem;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
   font-weight: bold;
   color: white;
   text-decoration: none;
@@ -38,18 +40,19 @@
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: clamp(20px, 3vw, 40px);
 }
 
 .nav-link {
   color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   font-weight: 500;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   transition: all 0.3s ease;
-  padding: 8px 16px;
+  padding: clamp(6px, 1.5vw, 12px) clamp(12px, 2vw, 20px);
   position: relative;
   border-radius: 6px;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -65,7 +68,7 @@
   left: 50%;
   width: 0;
   height: 2px;
-  background: white;
+  background: #007bff;
   transition: all 0.3s ease;
   transform: translateX(-50%);
 }
@@ -74,16 +77,34 @@
   width: 80%;
 }
 
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 20px);
+  padding: clamp(8px, 1.5vw, 12px);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-info {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .logout-btn {
   background: rgba(220, 53, 69, 0.1);
   border: 1px solid rgba(220, 53, 69, 0.3);
   cursor: pointer;
   font-family: inherit;
-  font-size: inherit;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   color: #ff6b6b;
   border-radius: 6px;
-  padding: 8px 16px;
+  padding: clamp(6px, 1.5vw, 12px) clamp(12px, 2vw, 20px);
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .logout-btn:hover {
@@ -95,28 +116,38 @@
 
 @media (max-width: 768px) {
   .nav-container {
-    padding: 0 15px;
+    padding: 0 clamp(15px, 3vw, 30px);
   }
   
   .nav-menu {
-    gap: 20px;
+    gap: clamp(15px, 2.5vw, 25px);
   }
   
-  .nav-link {
-    font-size: 0.9rem;
+  .user-section {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
   }
   
-  .nav-logo {
-    font-size: 1.3rem;
+  .user-info {
+    font-size: 0.8rem;
   }
 }
 
 @media (max-width: 480px) {
   .nav-menu {
-    gap: 15px;
+    gap: clamp(10px, 2vw, 20px);
   }
   
   .nav-link {
-    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+  
+  .logout-btn {
+    padding: 8px 12px;
+  }
+  
+  .user-section {
+    padding: 6px;
   }
 } 

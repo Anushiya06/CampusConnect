@@ -9,7 +9,8 @@ const EntrySchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    lowercase: true
   },
   message: {
     type: String,
@@ -19,7 +20,33 @@ const EntrySchema = new mongoose.Schema({
   purpose: {
     type: String,
     required: true,
-    enum: ['Student Visit', 'Faculty Meeting', 'Campus Tour', 'Event Attendance', 'Job Interview', 'Research', 'Other']
+    enum: [
+      'Student Visit', 
+      'Alumni Visit', 
+      'Faculty Meeting', 
+      'Campus Tour', 
+      'Seminar/Workshop',
+      'Event Attendance', 
+      'Job Interview', 
+      'Research', 
+      'Administrative',
+      'Other'
+    ]
+  },
+  category: {
+    type: String,
+    required: false,
+    enum: [
+      'Academic',
+      'Social',
+      'Professional',
+      'Cultural',
+      'Sports',
+      'Technology',
+      'Arts',
+      'Community Service',
+      'Other'
+    ]
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,

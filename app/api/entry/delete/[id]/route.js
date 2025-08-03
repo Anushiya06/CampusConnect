@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import { connectSimpleDB, deleteEntry } from '../../../../../lib/simpleDB';
+import clientPromise from '../../../../../lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function DELETE(request, { params }) {
   try {
-    await connectSimpleDB();
-    
+    const client = await clientPromise;
+    const db = client.db();
+    const entriesCollection = db.collection('entries');
+
     const { id } = params;
 
     if (!id) {
@@ -14,9 +17,9 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    const deleted = deleteEntry(id);
+    const result = await entriesCollection.deleteOne({ _id: new ObjectId(id) });
 
-    if (!deleted) {
+    if (result.deletedCount === 0) {
       return NextResponse.json(
         { error: 'Entry not found' },
         { status: 404 }
@@ -34,4 +37,4 @@ export async function DELETE(request, { params }) {
       { status: 500 }
     );
   }
-} 
+}
