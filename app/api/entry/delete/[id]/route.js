@@ -1,40 +1,32 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '../../../../../lib/mongodb';
-import { ObjectId } from 'mongodb';
+import fs from 'fs';
+import path from 'path';
+
+const entriesPath = path.join(process.cwd(), 'data', 'entries.json');
 
 export async function DELETE(request, { params }) {
   try {
-    const client = await clientPromise;
-    const db = client.db();
-    const entriesCollection = db.collection('entries');
-
     const { id } = params;
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'Entry ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Entry ID is required' }, { status: 400 });
     }
 
-    const result = await entriesCollection.deleteOne({ _id: new ObjectId(id) });
+    const fileData = fs.readFileSync(entriesPath, 'utf-8');
+    let entries = JSON.parse(fileData);
 
-    if (result.deletedCount === 0) {
-      return NextResponse.json(
-        { error: 'Entry not found' },
-        { status: 404 }
-      );
+    const initialLength = entries.length;
+    entries = entries.filter(entry => entry.id !== id);
+
+    if (entries.length === initialLength) {
+      return NextResponse.json({ error: 'Entry not found' }, { status: 404 });
     }
 
-    return NextResponse.json({
-      message: 'Entry deleted successfully'
-    }, { status: 200 });
+    fs.writeFileSync(entriesPath, JSON.stringify(entries, null, 2));
 
+    return NextResponse.json({ message: 'Entry deleted successfully' }, { status: 200 });
   } catch (error) {
     console.error('Delete entry error:', error);
-    return NextResponse.json(
-      { error: 'Server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
